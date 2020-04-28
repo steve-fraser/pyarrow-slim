@@ -14,5 +14,6 @@ REFER TO: https://github.com/apache/arrow/blob/master/docs/source/developers/cpp
     -DARROW_BUILD_TESTS=OFF 
 
 Environemnt variable set for pyarrow build:
+
     export PYARROW_WITH_PARQUET=1
     python setup.py build_ext --build-type=release --bundle-arrow-cpp bdist_wheel
