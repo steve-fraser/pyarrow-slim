@@ -1,4 +1,3 @@
-#FROM lambci/lambda:build-python3.7
 FROM python:3.7-alpine
 
 # Configure environment
@@ -37,6 +36,7 @@ RUN mkdir /arrow \
     -DARROW_PARQUET=on \
     -DARROW_PYTHON=on \
     -DARROW_PLASMA=on \
+    -DARROW_WITH_SNAPPY=on \
     -DARROW_BUILD_TESTS=OFF \
     .. \
     && make \
