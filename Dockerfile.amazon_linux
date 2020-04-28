@@ -1,0 +1,48 @@
+FROM lambci/lambda:build-python3.7
+
+
+RUN yum remove cmake -y \
+    && yum install wget -y  \
+    && cd /tmp/ \
+    && wget https://cmake.org/files/v3.10/cmake-3.10.0.tar.gz \
+    && tar -xvzf cmake-3.10.0.tar.gz \
+    && cd cmake-3.10.0 \
+    && ./bootstrap \
+    && make \
+    && make install 
+
+RUN pip3 install --no-cache-dir \
+    six \
+    cython \
+    numpy
+
+RUN yum install curl -y
+
+ARG ARROW_VERSION=0.17.0
+ARG ARROW_BUILD_TYPE=release
+ENV ARROW_HOME=/arrow/dist/
+
+
+RUN mkdir /arrow \
+    && curl -o /tmp/apache-arrow.tar.gz -SL https://github.com/apache/arrow/archive/apache-arrow-${ARROW_VERSION}.tar.gz \
+    && tar -xvf /tmp/apache-arrow.tar.gz -C /arrow --strip-components 1 \
+    && mkdir /arrow/dist \
+    && export LD_LIBRARY_PATH=/dist/lib:$LD_LIBRARY_PATH \
+    && mkdir -p /arrow/cpp/build \
+    && cd /arrow/cpp/build \
+    && cmake -DCMAKE_BUILD_TYPE=$ARROW_BUILD_TYPE \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_INSTALL_PREFIX=$ARROW_HOME \
+    -DARROW_PARQUET=on \
+    -DARROW_PYTHON=on \
+    -DARROW_PLASMA=on \
+    -DARROW_WITH_SNAPPY=on \
+    -DARROW_BUILD_TESTS=OFF \
+    .. \
+    && make \
+    && make install
+
+RUN yum install pkgconfig -y \
+    && cd /arrow/python/ \
+    && export PYARROW_WITH_PARQUET=1 \
+    && python setup.py build_ext --build-type=release --bundle-arrow-cpp bdist_wheel
