@@ -18,7 +18,7 @@ RUN pip3 install --no-cache-dir \
 
 RUN yum install curl -y
 
-ARG ARROW_VERSION=0.17.0
+ARG ARROW_VERSION=3.0.0
 ARG ARROW_BUILD_TYPE=release
 ENV ARROW_HOME=/arrow/dist/
 
